@@ -3,9 +3,13 @@ const ERROR_TYPES = require('../constants/errors');
 const ContactModel = require("./contactShema");
 
 
-const listContacts = async () => {
-  const contacts = await ContactModel.find();
-  return contacts;
+const listContacts = async ({page, limit}) => {
+  const contacts = await ContactModel.find()
+    .skip((page - 1) * limit)
+    .limit(limit)
+  const count = await ContactModel.count()
+
+  return {contacts, count, page, limit}
 };
 
 const getContactById = async (contactId) => {

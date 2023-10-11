@@ -7,12 +7,14 @@ const updateContactBodySchema = require('../../../schemas/contacts/updateContact
 const updateFieldFavorite = require('../../../schemas/contacts/updateFieldFavorite');
 const validateObjectId = require('../../middlewares/validateByMongoose');
 const auth = require('../../middlewares/auth');
+const validateQuery = require('../../middlewares/validateQueery');
+const paginationSchema = require('../../../schemas/common/pagination');
 
 const router = express.Router()
 
-router.get('/', async (req, res, next) => {
-  console.log(req.body);
-  const contacts = await contactsService.listContacts();
+router.get('/', validateQuery(paginationSchema), async (req, res, next) => {
+  const { page = 1, limit = 1 } = req.query;
+  const contacts = await contactsService.listContacts({page: +page, limit: +limit});
   res.status(200).json(contacts);
 });
 
