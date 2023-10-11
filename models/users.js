@@ -13,4 +13,9 @@ const findUserByEmail = async (email) => {
   return user;
 };
 
-module.exports = {create, findUserByEmail}
+const findById = async (id) => {
+  const user = await UserModel.findById(id, { password: 0 })
+  return user;
+};
+
+module.exports = {create, findUserByEmail, findById}

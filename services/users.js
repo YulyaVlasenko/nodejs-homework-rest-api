@@ -42,4 +42,10 @@ const login = async ({ email, password }) => {
   return { ...serializedUser, token };
 };
 
-module.exports = {register, login}
+const findById = async (id) => {
+  const user = await usersRepository.findById(id);
+
+  return user;
+};
+
+module.exports = {register, login, findById}
