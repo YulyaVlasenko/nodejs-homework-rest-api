@@ -1,3 +1,5 @@
+const ERROR_TYPES = require('../constants/errors');
+const createError = require('../utils/createError');
 const UserModel = require('./userSchema')
 
 const create = async (data) => {
@@ -18,4 +20,29 @@ const findById = async (id) => {
   return user;
 };
 
-module.exports = {create, findUserByEmail, findById}
+
+const updateStatusSubscription = async (userId, body) => {
+
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        subscription: body.subscription,
+      },
+    },
+    { new: true }
+  );
+
+    console.log(updatedUser)
+
+  if (!updatedUser) {
+    const error = createError(ERROR_TYPES.NOT_FOUND, {
+      message: "Not found",
+    });
+    throw error;
+  };
+
+  return updatedUser;
+};
+
+module.exports = {create, findUserByEmail, findById, updateStatusSubscription}

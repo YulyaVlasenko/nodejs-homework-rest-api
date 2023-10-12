@@ -7,6 +7,7 @@ const createError = require('../../../utils/createError');
 const ERROR_TYPES = require('../../../constants/errors');
 const auth = require('../../middlewares/auth');
 const authMiddleware = require('../../middlewares/authToken');
+const updateFieldSubscription = require('../../../schemas/users/updateFieldSubscription');
 
 
 const router = express.Router()
@@ -27,9 +28,8 @@ router.post('/register', validateBody(registrationSchema),async (req, res, next)
     
     const user = await usersService.register(body);
       if (user) {
-      return res.json({
-        message: 'User created successfully!',
-        data: user,
+      return res.status(201).json({
+        user: user,
       });
       }
     const error = createError(ERROR_TYPES.BAD_REQUEST, {
@@ -47,7 +47,7 @@ router.post('/login', validateBody(registrationSchema),async (req, res, next) =>
   const { body } = req;
   try {
     const user = await usersService.login(body);
-    return res.json({ data: user, message: 'Successfully logged in a user!' });
+    return res.status(200).json({ token: user.token, user: {email: user.email, subscription: user.subscription}});
   } catch (err) {
     next(err);
   }
@@ -55,7 +55,6 @@ router.post('/login', validateBody(registrationSchema),async (req, res, next) =>
 
 router.post('/logout', auth, async (req, res, next) => {
   const userId = req.user.id; // Отримання _id поточного користувача
-
   try {
     // Знайдіть користука в базі даних за _id та видаліть його
     const user = await UserModel.findByIdAndUpdate(userId, { $set: { token: null } });
@@ -95,6 +94,17 @@ router.get('/current', authMiddleware, async (req, res, next) => {
   } catch (err) {
     next(err)
   }
+});
+
+router.patch('/:userId/subscription', auth, validateBody(updateFieldSubscription), async (req, res, next) => {
+  const  {userId}  = req.params;
+  const  {body}  = req;
+  try {
+    const contact = await usersService.updateSubscription(userId, body);
+  res.status(200).json(contact)
+  }catch (err) {
+            next(err);
+        }
 });
 
 

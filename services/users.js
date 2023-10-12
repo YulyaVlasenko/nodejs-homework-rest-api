@@ -15,7 +15,7 @@ const login = async ({ email, password }) => {
     const user = await usersRepository.findUserByEmail(email);
     if (!user) {
         const error = createError(ERROR_TYPES.NOT_FOUND, {
-            message: 'User with given email not found',
+            message: 'Email or password is wrong',
         });
         throw error;
     }
@@ -48,4 +48,9 @@ const findById = async (id) => {
   return user;
 };
 
-module.exports = {register, login, findById}
+const updateSubscription = async (userId, body) => {
+  const updatedUser = await usersRepository.updateStatusSubscription(userId, body)
+  return updatedUser;
+}
+
+module.exports = {register, login, findById, updateSubscription}
