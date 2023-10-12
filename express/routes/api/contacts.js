@@ -9,12 +9,14 @@ const validateObjectId = require('../../middlewares/validateByMongoose');
 const auth = require('../../middlewares/auth');
 const validateQuery = require('../../middlewares/validateQueery');
 const paginationSchema = require('../../../schemas/common/pagination');
+const contactFilterQueryParams = require('../../../schemas/contacts/contactFilterQueryParams');
+const Joi = require('joi');
 
 const router = express.Router()
 
-router.get('/', validateQuery(paginationSchema), async (req, res, next) => {
-  const { page = 1, limit = 1 } = req.query;
-  const contacts = await contactsService.listContacts({page: +page, limit: +limit});
+router.get('/', validateQuery(Joi.object({ ...paginationSchema, ...contactFilterQueryParams })), async (req, res, next) => {
+  const { page=1, limit=1, favorite } = req.query;
+  const contacts = await contactsService.listContacts({page: +page, limit: +limit, favorite});
   res.status(200).json(contacts);
 });
 

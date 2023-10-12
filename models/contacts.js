@@ -2,15 +2,24 @@ const createError = require('../utils/createError');
 const ERROR_TYPES = require('../constants/errors');
 const ContactModel = require("./contactShema");
 
-
-const listContacts = async ({page, limit}) => {
-  const contacts = await ContactModel.find()
+const listContacts = async ({ page, limit, favorite }) => {
+  const contactsQuery = ContactModel.find()
     .skip((page - 1) * limit)
-    .limit(limit)
-  const count = await ContactModel.count()
+    .limit(limit);
 
-  return {contacts, count, page, limit}
+  const countQuery = ContactModel.count();
+
+  if (favorite) {
+    contactsQuery.where('favorite').equals(favorite);
+    countQuery.where('favorite').equals(favorite);
+  }
+
+  const contacts = await contactsQuery.exec();
+  const count = await countQuery.exec();
+
+  return { contacts, count, page, limit };
 };
+
 
 const getContactById = async (contactId) => {
 
