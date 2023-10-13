@@ -2,13 +2,13 @@ const contactsRepository = require('../models/contacts');
 
 
 
-const listContacts = async (config) => {
-    const contacts = await contactsRepository.listContacts(config);
+const listContacts = async (query, owner) => {
+    const contacts = await contactsRepository.listContacts(query, owner);
     return contacts;
 }
 
-const getContactById = async (contactId) => {
-    const contact = await contactsRepository.getContactById(contactId);
+const getContactById = async (contactId, owner) => {
+    const contact = await contactsRepository.getContactById(contactId, owner);
     return contact;
 };
 

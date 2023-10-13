@@ -54,9 +54,8 @@ router.post('/login', validateBody(registrationSchema),async (req, res, next) =>
 });
 
 router.post('/logout', auth, async (req, res, next) => {
-  const userId = req.user.id; // Отримання _id поточного користувача
+  const userId = req.user.id;
   try {
-    // Знайдіть користука в базі даних за _id та видаліть його
     const user = await UserModel.findByIdAndUpdate(userId, { $set: { token: null } });
     
     if (!user) {

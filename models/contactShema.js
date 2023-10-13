@@ -1,11 +1,11 @@
-const { Schema, model } = require('mongoose')
+const { Schema, model } = require('mongoose');
 
 const contactSchema = new Schema(
   {
-    // owner: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'user',
-    // },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'users',
+    },
     name: {
       type: String,
       required: [true, 'Set name for contact'],

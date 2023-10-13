@@ -2,17 +2,22 @@ const createError = require('../utils/createError');
 const ERROR_TYPES = require('../constants/errors');
 const ContactModel = require("./contactShema");
 
-const listContacts = async ({ page, limit, favorite }) => {
-  const contactsQuery = ContactModel.find()
-    .skip((page - 1) * limit)
-    .limit(limit);
+const listContacts = async (query, owner) => {
+    const { limit = 1, page = 1, favorite } = query;
 
-  const countQuery = ContactModel.count();
+  const contactsQuery = ContactModel.find({owner})
+    .skip((page - 1) * limit)
+    .limit(limit)
+
+  const countQuery = ContactModel.count({owner});
+  
+
 
   if (favorite) {
     contactsQuery.where('favorite').equals(favorite);
     countQuery.where('favorite').equals(favorite);
   }
+
 
   const contacts = await contactsQuery.exec();
   const count = await countQuery.exec();
@@ -21,10 +26,9 @@ const listContacts = async ({ page, limit, favorite }) => {
 };
 
 
-const getContactById = async (contactId) => {
-
+const getContactById = async (contactId, owner) => {
   const contact = await ContactModel.findById(contactId);
-  if (!contact) {
+  if (!contact || contact.owner.toString() !== owner.toString()) {
     const error = createError(ERROR_TYPES.NOT_FOUND, {
       message: "Not found",
     });
@@ -53,9 +57,6 @@ const addContact = async (body) => {
   await contact.save();
   return contact;
 };
-
-
-
 
 const updateContact = async (contactId, body) => {
   const { name, email, phone} = body;

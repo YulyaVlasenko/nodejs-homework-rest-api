@@ -14,16 +14,21 @@ const Joi = require('joi');
 
 const router = express.Router()
 
-router.get('/', validateQuery(Joi.object({ ...paginationSchema, ...contactFilterQueryParams })), async (req, res, next) => {
-  const { page=1, limit=1, favorite } = req.query;
-  const contacts = await contactsService.listContacts({page: +page, limit: +limit, favorite});
+router.get('/', auth, validateQuery(Joi.object({ ...paginationSchema, ...contactFilterQueryParams })), async (req, res, next) => {
+  const owner = req.user._id;
+  const contacts = await contactsService.listContacts(req.query, owner);
   res.status(200).json(contacts);
 });
 
-router.get('/:contactId', validateObjectId, async (req, res, next) => {
+router.get('/:contactId', auth, validateObjectId, async (req, res, next) => {
   const { contactId } = req.params;
+  const owner = req.user._id;
   try {
-    const contact = await contactsService.getContactById(contactId);
+    const contact = await contactsService.getContactById(contactId, owner);
+
+      //   if (!contact || contact.owner.toString() !== req.user._id) {
+      //   throw HttpError(404, "Not found");
+      // }
     res.status(200).json(contact);
   }catch (err) {
             next(err);
@@ -31,8 +36,10 @@ router.get('/:contactId', validateObjectId, async (req, res, next) => {
 })
 
 router.post('/', auth, validateBody(createContactBodySchema), async (req, res, next) => {
+  const owner = req.user._id; 
+  const body = req.body
   try {
-     const contact = await contactsService.addContact(req.body);
+    const contact = await contactsService.addContact({ ...body, owner });
     res.status(201).json(contact);
   }catch (err) {
             next(err);
