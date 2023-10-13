@@ -5,9 +5,8 @@ const cors = require('cors')
 require('dotenv').config()
 
 const contactsRouter = require('./express/routes/api/contacts')
+const usersRouter = require('./express/routes/api/users')
 const errorHandler = require('./express/middlewares/errorHandler')
-
-
 
 
 const app = express()
@@ -20,6 +19,7 @@ app.use(cors())
 app.use(express.json())
 
 app.use('/api/contacts', contactsRouter)
+app.use('/users', usersRouter);
 
 app.use(errorHandler);
 
