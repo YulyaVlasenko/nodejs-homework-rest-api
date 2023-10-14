@@ -96,11 +96,12 @@ router.get('/current', authMiddleware, async (req, res, next) => {
 });
 
 router.patch('/:userId/subscription', auth, validateBody(updateFieldSubscription), async (req, res, next) => {
-  const  {userId}  = req.params;
+  const  userId  = req.user._id;
   const  {body}  = req;
   try {
-    const contact = await usersService.updateSubscription(userId, body);
-  res.status(200).json(contact)
+    const updatedUser = await usersService.updateSubscription(userId, body);
+    console.log('rout :>> ', updatedUser);
+  res.status(200).json(updatedUser)
   }catch (err) {
             next(err);
         }

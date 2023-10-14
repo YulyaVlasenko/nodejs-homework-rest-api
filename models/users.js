@@ -21,6 +21,9 @@ const findById = async (id) => {
 
 const updateStatusSubscription = async (userId, body) => {
 
+  console.log('userId :>> ', userId);
+  console.log('body :>> ', body);
+
   const updatedUser = await UserModel.findByIdAndUpdate(
     userId,
     {
@@ -30,6 +33,8 @@ const updateStatusSubscription = async (userId, body) => {
     },
     { new: true }
   );
+
+  console.log('updatedUser :>> ', updatedUser);
 
 
   if (!updatedUser) {
