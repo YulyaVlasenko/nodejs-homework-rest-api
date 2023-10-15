@@ -72,7 +72,7 @@ router.post('/logout', auth, async (req, res, next) => {
 });
 
 
-router.get('/current', authMiddleware, async (req, res, next) => {
+router.get('/current', auth, authMiddleware, async (req, res, next) => {
   try {
     const userId = req.user.sub;
     const user = await UserModel.findById(userId);
@@ -95,8 +95,8 @@ router.get('/current', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.patch('/:userId/subscription', auth, validateBody(updateFieldSubscription), async (req, res, next) => {
-  const  userId  = req.user._id;
+router.patch('/subscription', auth, authMiddleware, validateBody(updateFieldSubscription), async (req, res, next) => {
+  const  userId  = req.user.sub;
   const  {body}  = req;
   try {
     const updatedUser = await usersService.updateSubscription(userId, body);
