@@ -2,8 +2,8 @@ const usersRepository = require('../models/users')
 const bcrypt = require('bcrypt');
 const createError = require('../utils/createError');
 const ERROR_TYPES = require('../constants/errors');
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'super secret';
+// const jwt = require('jsonwebtoken');
+// const JWT_SECRET = 'super secret';
 
 const register = async (data) => {
   const passwordHash = await bcrypt.hash(data.password, 10);
@@ -30,27 +30,32 @@ const login = async ({ email, password }) => {
     throw error;
     }
     
-    const serializedUser = user.toObject();
-    delete serializedUser.password;
+    // const serializedUser = user.toObject();
+    // delete serializedUser.password;
 
-  const token = jwt.sign(
-  { sub: serializedUser._id, role: serializedUser.role },
-  JWT_SECRET,
-  { expiresIn: 3600 },
-  );
+  // const token = jwt.sign(
+  // { sub: serializedUser._id, role: serializedUser.role },
+  // JWT_SECRET,
+  // { expiresIn: 3600 },
+  // );
 
-  return { ...serializedUser, token };
-};
-
-const findById = async (id) => {
-  const user = await usersRepository.findById(id);
-
+  // return { ...serializedUser, token };
   return user;
 };
+
+// const findById = async (id) => {
+//   const user = await usersRepository.findById(id);
+
+//   return user;
+// };
 
 const updateSubscription = async (userId, body) => {
   const updatedUser = await usersRepository.updateStatusSubscription(userId, body)
   return updatedUser;
 }
 
-module.exports = {register, login, findById, updateSubscription}
+module.exports = {
+  register, login,
+  // findById,
+  updateSubscription
+}
