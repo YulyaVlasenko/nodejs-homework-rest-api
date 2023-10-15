@@ -6,7 +6,7 @@ const createContactBodySchema = require('../../../schemas/contacts/createContact
 const updateContactBodySchema = require('../../../schemas/contacts/updateContact');
 const updateFieldFavorite = require('../../../schemas/contacts/updateFieldFavorite');
 const validateObjectId = require('../../middlewares/validateByMongoose');
-// const auth = require('../../middlewares/auth');
+const auth = require('../../middlewares/auth');
 const validateQuery = require('../../middlewares/validateQueery');
 const paginationSchema = require('../../../schemas/common/pagination');
 const contactFilterQueryParams = require('../../../schemas/contacts/contactFilterQueryParams');
@@ -15,7 +15,7 @@ const Joi = require('joi');
 const router = express.Router()
 
 router.get('/',
-  // auth,
+  auth,
   validateQuery(Joi.object({ ...paginationSchema, ...contactFilterQueryParams })), async (req, res, next) => {
   const owner = req.user._id;
   const contacts = await contactsService.listContacts(req.query, owner);
@@ -36,7 +36,7 @@ router.get('/:contactId',
 })
 
 router.post('/',
-  // auth,
+  auth,
   validateBody(createContactBodySchema), async (req, res, next) => {
   const owner = req.user._id; 
   const body = req.body
@@ -49,7 +49,7 @@ router.post('/',
 })
 
 router.delete('/:contactId',
-  // auth,
+  auth,
   validateObjectId, async (req, res, next) => {
   const { contactId } = req.params;
   try {
@@ -63,7 +63,7 @@ router.delete('/:contactId',
 })
 
 router.put('/:contactId',
-  // auth,
+  auth,
   validateObjectId, validateBody(updateContactBodySchema), async (req, res, next) => {
   const { contactId } = req.params;
   const { body } = req;
@@ -76,7 +76,7 @@ router.put('/:contactId',
 })
 
 router.patch('/:contactId/favorite',
-  // auth,
+  auth,
   validateObjectId, validateBody(updateFieldFavorite), async (req, res, next) => {
   const { contactId } = req.params;
   const { body } = req;

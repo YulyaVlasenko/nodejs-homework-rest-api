@@ -13,10 +13,10 @@ const findUserByEmail = async (email) => {
   return user;
 };
 
-// const findById = async (id) => {
-//   const user = await UserModel.findById(id, { password: 0 })
-//   return user;
-// };
+const findById = async (id) => {
+  const user = await UserModel.findById(id, { password: 0 })
+  return user;
+};
 
 
 const updateStatusSubscription = async (userId, body) => {
@@ -46,6 +46,6 @@ const updateStatusSubscription = async (userId, body) => {
 
 module.exports = {
   create, findUserByEmail,
-  // findById,
+  findById,
   updateStatusSubscription
 }

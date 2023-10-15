@@ -15,7 +15,7 @@ const userSchema = new Schema({
     enum: ["starter", "pro", "business"],
     default: "starter"
   },
-  token: String
+  // token: String
 },
    { versionKey: false },
 );
