@@ -100,7 +100,6 @@ router.patch('/subscription', auth, authMiddleware, validateBody(updateFieldSubs
   const  {body}  = req;
   try {
     const updatedUser = await usersService.updateSubscription(userId, body);
-    console.log('rout :>> ', updatedUser);
   res.status(200).json(updatedUser)
   }catch (err) {
             next(err);
