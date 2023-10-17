@@ -3,11 +3,18 @@ const bcrypt = require('bcrypt');
 const createError = require('../utils/createError');
 const ERROR_TYPES = require('../constants/errors');
 const jwt = require('jsonwebtoken');
-const {JWT_SECRET} = process.env;
+const { JWT_SECRET } = process.env;
+const gravatar = require('gravatar');
 
-const register = async (data) => {
-  const passwordHash = await bcrypt.hash(data.password, 10);
-  const user = await usersRepository.create({ ...data, password: passwordHash })
+const register = async ({password, email}) => {
+  const passwordHash = await bcrypt.hash(password, 10);
+  const avatarURL = gravatar.url({ email })
+  const user = await usersRepository.create({
+    email,
+    password: passwordHash,
+    avatarURL,
+  })
+
   return user;
 };
 
@@ -54,8 +61,13 @@ const updateSubscription = async (userId, body) => {
   return updatedUser;
 }
 
+const updateAvatar = async (path, userId) => {
+  const updatedAvatar = await usersRepository.updateAvatar(path, userId);
+  return updatedAvatar;
+}
+
 module.exports = {
   register, login,
   findById,
-  updateSubscription
+  updateSubscription, updateAvatar
 }

@@ -8,6 +8,8 @@ const ERROR_TYPES = require('../../../constants/errors');
 const auth = require('../../middlewares/auth');
 const authMiddleware = require('../../middlewares/authToken');
 const updateFieldSubscription = require('../../../schemas/users/updateFieldSubscription');
+const upload = require('../../middlewares/multer');
+
 
 
 const router = express.Router()
@@ -15,16 +17,15 @@ const router = express.Router()
 
 router.post('/register', validateBody(registrationSchema),async (req, res, next) => {
   const { body } = req;
-
+  const { email} = req.body;
   try {
-    const { email} = req.body;
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
      const error = createError(ERROR_TYPES.CONFLICT, {
       "message": "Email in use"
     })
      return next(error);
-    }
+    };
     
     const user = await usersService.register(body);
       if (user) {
@@ -95,12 +96,24 @@ router.get('/current', auth, authMiddleware, async (req, res, next) => {
   }
 });
 
-router.patch('/subscription', auth, authMiddleware, validateBody(updateFieldSubscription), async (req, res, next) => {
+router.patch('/subscription', auth, authMiddleware,validateBody(updateFieldSubscription), async (req, res, next) => {
   const  userId  = req.user.sub;
   const  {body}  = req;
   try {
     const updatedUser = await usersService.updateSubscription(userId, body);
   res.status(200).json(updatedUser)
+  }catch (err) {
+            next(err);
+        }
+});
+
+router.patch('/avatars', auth, upload.single('avatar'), async (req, res, next) => {
+  const { path: tempUpload, originalname } = req.file;
+  const userId = req.user._id
+  const filename = `${userId}_${originalname}`;
+  try {
+    const updatedAvatar = await usersService.updateAvatar({tempUpload, filename} , userId);
+  res.status(200).json(updatedAvatar)
   }catch (err) {
             next(err);
         }
