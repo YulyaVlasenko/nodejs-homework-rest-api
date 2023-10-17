@@ -46,6 +46,9 @@ const login = async ({ email, password }) => {
   { expiresIn: 3600 },
   );
 
+  const userId = user.id
+  await usersRepository.addTokenToSchema(userId, token)
+
   return { ...serializedUser, token };
 
 };

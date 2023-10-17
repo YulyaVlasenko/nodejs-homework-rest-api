@@ -19,6 +19,9 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  token: {
+     type: String,
+   }
 },
    { versionKey: false },
 );
@@ -28,6 +31,7 @@ userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   delete obj._id;
+  delete obj.token;
   return obj;
 };
 

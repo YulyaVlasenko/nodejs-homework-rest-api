@@ -56,6 +56,7 @@ router.post('/login', validateBody(registrationSchema),async (req, res, next) =>
 
 router.post('/logout', auth, async (req, res, next) => {
   const userId = req.user.id;
+  console.log('logout :>> ', userId);
   try {
     const user = await UserModel.findByIdAndUpdate(userId, { $set: { token: null } });
     

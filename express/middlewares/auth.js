@@ -9,12 +9,16 @@ const auth = (req, res, next) => {
       return next(error);
     }
 
-    if (!user) {
+ 
+
+    if (!user || user.token === null) {
       const error = createError(ERROR_TYPES.UNAUTHORIZED, {
         message: 'Unauthorized',
       });
       next(error);
     }
+
+    console.log('user.token :>> ', user.token);
 
     req.user = user;
     next();
