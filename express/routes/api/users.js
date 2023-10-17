@@ -2,7 +2,6 @@ const express = require('express');
 const usersService = require('../../../services/users');
 const registrationSchema = require('../../../schemas/users/registrationSchema');
 const validateBody = require('../../middlewares/validateBody');
-const UserModel = require('../../../models/userSchema');
 const createError = require('../../../utils/createError');
 const ERROR_TYPES = require('../../../constants/errors');
 const auth = require('../../middlewares/auth');
@@ -17,16 +16,7 @@ const router = express.Router()
 
 router.post('/register', validateBody(registrationSchema),async (req, res, next) => {
   const { body } = req;
-  const { email} = req.body;
   try {
-    const existingUser = await UserModel.findOne({ email });
-    if (existingUser) {
-     const error = createError(ERROR_TYPES.CONFLICT, {
-      "message": "Email in use"
-    })
-     return next(error);
-    };
-    
     const user = await usersService.register(body);
       if (user) {
       return res.status(201).json({
@@ -37,7 +27,6 @@ router.post('/register', validateBody(registrationSchema),async (req, res, next)
       "message": "User created failed!"
     })
     return error
-
   } catch (err) {
     next(err);
   }
@@ -56,17 +45,8 @@ router.post('/login', validateBody(registrationSchema),async (req, res, next) =>
 
 router.post('/logout', auth, async (req, res, next) => {
   const userId = req.user.id;
-  console.log('logout :>> ', userId);
   try {
-    const user = await UserModel.findByIdAndUpdate(userId, { $set: { token: null } });
-    
-    if (!user) {
-      const error = createError(ERROR_TYPES.UNAUTHORIZED, {
-        message: 'Not authorized'
-      });
-      return next(error); 
-    }
-
+    await usersService.logout(userId);
     res.status(204).end(); 
   } catch (err) {
     next(err);
@@ -77,21 +57,9 @@ router.post('/logout', auth, async (req, res, next) => {
 router.get('/current', auth, authMiddleware, async (req, res, next) => {
   try {
     const userId = req.user.sub;
-    const user = await UserModel.findById(userId);
 
-    if (!user) {
-      const error = createError(ERROR_TYPES.UNAUTHORIZED, {
-        message: 'User not found'
-      });
-      return next(error); 
-    }
-
-    const userData = {
-      email: user.email,
-      subscription: user.subscription
-    };
-
-    res.status(200).json(userData);
+    const user = await usersService.getCurrentUserByToken(userId);
+    res.status(200).json(user);
   } catch (err) {
     next(err)
   }
@@ -111,9 +79,9 @@ router.patch('/subscription', auth, authMiddleware,validateBody(updateFieldSubsc
 router.patch('/avatars', auth, upload.single('avatar'), async (req, res, next) => {
   const { path: tempUpload, originalname } = req.file;
   const userId = req.user._id
-  const filename = `${userId}_${originalname}`;
+  
   try {
-    const updatedAvatar = await usersService.updateAvatar({tempUpload, filename} , userId);
+    const updatedAvatar = await usersService.updateAvatar({tempUpload, originalname} , userId);
   res.status(200).json(updatedAvatar)
   }catch (err) {
             next(err);
