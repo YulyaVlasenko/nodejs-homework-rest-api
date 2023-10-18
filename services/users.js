@@ -31,8 +31,8 @@ const updateSubscription = async (userId, body) => {
   return updatedUser;
 }
 
-const updateAvatar = async (path, userId) => {
-  const updatedAvatar = await usersRepository.updateAvatar(path, userId);
+const updateAvatar = async ({ tempUpload, originalname }, userId) => {
+  const updatedAvatar = await usersRepository.updateAvatar({ tempUpload, originalname }, userId);
   return updatedAvatar;
 }
 

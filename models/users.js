@@ -129,15 +129,13 @@ const updateAvatar = async ({ tempUpload, originalname }, userId) => {
   const resultUpload = path.join(avatarsDir, filename);
   await fs.rename(tempUpload, resultUpload);
   const avatarURL = path.join('avatars', filename);
-  const updatedAvatar = await UserModel.findByIdAndUpdate(userId, { avatarURL });
-  if (!updatedAvatar) {
+  const updatedAvatar = await UserModel.findByIdAndUpdate(userId, { avatarURL }, {new: true});
+   if (!updatedAvatar) {
     const error = createError(ERROR_TYPES.NOT_FOUND, {
       message: "Not found",
     });
     throw error;
   };
-
-    
 
   return updatedAvatar
 }

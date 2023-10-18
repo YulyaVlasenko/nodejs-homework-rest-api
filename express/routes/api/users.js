@@ -88,7 +88,7 @@ router.patch('/avatars', auth, upload.single('avatar'), async (req, res, next) =
   
   try {
     const updatedAvatar = await usersService.updateAvatar({ tempUpload, originalname }, userId);
-  res.status(200).json({avatarURL: updatedAvatar.avatarURL})
+    res.status(200).json({ avatarURL: updatedAvatar.avatarURL })
   }catch (err) {
             next(err);
         }
