@@ -4,7 +4,7 @@ const { UPLOAD_DIR } = require('../../constants/common');
 const multerConfig = multer.diskStorage({
   destination: UPLOAD_DIR,
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
+  cb(null, file.originalname);
   }
 });
 

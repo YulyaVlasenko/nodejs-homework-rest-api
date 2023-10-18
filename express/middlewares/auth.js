@@ -18,8 +18,6 @@ const auth = (req, res, next) => {
       next(error);
     }
 
-    console.log('user.token :>> ', user.token);
-
     req.user = user;
     next();
   })(req, res, next);

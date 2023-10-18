@@ -64,8 +64,6 @@ const login = async ({ email, password }) => {
 
   await UserModel.findByIdAndUpdate(userId, {token})
 
-  console.log('serializedUser :>> ', serializedUser);
-
   return { ...serializedUser, token };
 
 };
@@ -138,6 +136,9 @@ const updateAvatar = async ({ tempUpload, originalname }, userId) => {
     });
     throw error;
   };
+
+    
+
   return updatedAvatar
 }
 

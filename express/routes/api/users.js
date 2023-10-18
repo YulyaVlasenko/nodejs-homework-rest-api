@@ -77,12 +77,18 @@ router.patch('/subscription', auth, authMiddleware,validateBody(updateFieldSubsc
 });
 
 router.patch('/avatars', auth, upload.single('avatar'), async (req, res, next) => {
+  if (!req.file) {
+    const error = createError(ERROR_TYPES.NOT_FOUND, {
+      message: "Download File Not Found",
+    });
+    return next(error);
+  };
   const { path: tempUpload, originalname } = req.file;
   const userId = req.user._id
   
   try {
-    const updatedAvatar = await usersService.updateAvatar({tempUpload, originalname} , userId);
-  res.status(200).json(updatedAvatar)
+    const updatedAvatar = await usersService.updateAvatar({ tempUpload, originalname }, userId);
+  res.status(200).json({avatarURL: updatedAvatar.avatarURL})
   }catch (err) {
             next(err);
         }
