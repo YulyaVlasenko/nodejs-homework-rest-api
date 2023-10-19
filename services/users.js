@@ -29,15 +29,19 @@ const findUserForStrategy = async (id) => {
 const updateSubscription = async (userId, body) => {
   const updatedUser = await usersRepository.updateStatusSubscription(userId, body)
   return updatedUser;
-}
+};
 
 const updateAvatar = async ({ tempUpload, originalname }, userId) => {
   const updatedAvatar = await usersRepository.updateAvatar({ tempUpload, originalname }, userId);
   return updatedAvatar;
-}
+};
+
+const verifyEmail = async (verificationToken) => {
+  await usersRepository.verifyEmail(verificationToken);
+};
 
 module.exports = {
   register, login, logout, getCurrentUserByToken,
   findUserForStrategy,
-  updateSubscription, updateAvatar
-}
+  updateSubscription, updateAvatar, verifyEmail
+};

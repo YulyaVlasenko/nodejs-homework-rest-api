@@ -94,6 +94,21 @@ router.patch('/avatars', auth, upload.single('avatar'), async (req, res, next) =
         }
 });
 
+router.get("/verify/:verificationToken", async (req, res, next) => {
+  const { verificationToken } = req.params
+
+  try {
+    await usersService.verifyEmail(verificationToken);
+    res.status(200).json({
+        message: 'Verification successful',
+    })
+
+  } catch (error) {
+    next(error)
+  }
+
+});
+
 
 
 

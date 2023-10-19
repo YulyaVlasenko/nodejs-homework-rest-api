@@ -10,7 +10,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { nanoid } = require('nanoid');
 const sendEmail = require('../services/nodemailer');
-const { JWT_SECRET } = process.env;
+require("dotenv").config();
+const { JWT_SECRET, BASE_URL } = process.env;
 
 const create = async ({email, password}) => {
     const existingUser = await UserModel.findOne({email});
@@ -38,7 +39,7 @@ const create = async ({email, password}) => {
   const mail = {
     to: email,
     subject: "Verify email",
-    html: `<a target="_blank" href="http://localhost:3000/api/auth/verify/${verificationToken}">Follow link for verify email<a>`,
+    html: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">Follow link for verify email<a>`,
   };
   await sendEmail(mail);
   return user;
@@ -52,7 +53,14 @@ const login = async ({ email, password }) => {
             message: 'Email or password is wrong',
         });
         throw error;
-    }
+  }
+  
+  if (!user.verify) {
+    const error = createError(ERROR_TYPES.NOT_FOUND, {
+            message: 'Email is not verified',
+        });
+        throw error;
+  }
 
   const hashedPassword = user.password;
   const isValid = await bcrypt.compare(password, hashedPassword);
@@ -153,4 +161,20 @@ const updateAvatar = async ({ tempUpload, originalname }, userId) => {
   return updatedAvatar
 }
 
-module.exports = {create, login, logout, getCurrentUserByToken, findUserForStrategy, updateStatusSubscription, updateAvatar}
+const verifyEmail = async(verificationToken)=>{
+  const verifiedUser = await UserModel.findOne({ verificationToken });
+  console.log('verifiedUser :>> ', verifiedUser);
+    if (!verifiedUser) {
+        const error = createError(ERROR_TYPES.NOT_FOUND,{
+            message:'Not Found'
+        })
+        throw error
+    }
+  await UserModel.findByIdAndUpdate(verifiedUser._id, { verify: true, verificationToken: null })
+  
+}
+
+module.exports = {
+  create, login, logout, getCurrentUserByToken, findUserForStrategy,
+  updateStatusSubscription, updateAvatar, verifyEmail
+}
