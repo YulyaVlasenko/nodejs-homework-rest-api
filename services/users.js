@@ -1,51 +1,28 @@
 const usersRepository = require('../models/users')
-const bcrypt = require('bcrypt');
-const createError = require('../utils/createError');
-const ERROR_TYPES = require('../constants/errors');
-const jwt = require('jsonwebtoken');
-const {JWT_SECRET} = process.env;
 
-const register = async (data) => {
-  const passwordHash = await bcrypt.hash(data.password, 10);
-  const user = await usersRepository.create({ ...data, password: passwordHash })
+
+const register = async (body) => {
+  const user = await usersRepository.create(body);
   return user;
 };
 
-const login = async ({ email, password }) => {
-    const user = await usersRepository.findUserByEmail(email);
-    if (!user) {
-        const error = createError(ERROR_TYPES.NOT_FOUND, {
-            message: 'Email or password is wrong',
-        });
-        throw error;
-    }
-
-  const hashedPassword = user.password;
-  const isValid = await bcrypt.compare(password, hashedPassword);
-
-  if (!isValid) {
-    const error = createError(ERROR_TYPES.UNAUTHORIZED, {
-      message: 'Email or password is wrong',
-    });
-    throw error;
-    }
-    
-    const serializedUser = user.toObject();
-    delete serializedUser.password;
-
-  const token = jwt.sign(
-  { sub: serializedUser._id, role: serializedUser.role },
-  JWT_SECRET,
-  { expiresIn: 3600 },
-  );
-
-  return { ...serializedUser, token };
-
+const login = async (body) => {
+  const user = await usersRepository.login(body);
+  return user;
 };
 
-const findById = async (id) => {
-  const user = await usersRepository.findById(id);
+const logout = async (userId) => {
+  const user = await usersRepository.logout(userId);
+  return user;
+};
 
+const getCurrentUserByToken = async (userId) => {
+  const user = await usersRepository.getCurrentUserByToken(userId);
+  return user;
+};
+
+const findUserForStrategy = async (id) => {
+  const user = await usersRepository.findUserForStrategy(id);
   return user;
 };
 
@@ -54,8 +31,13 @@ const updateSubscription = async (userId, body) => {
   return updatedUser;
 }
 
+const updateAvatar = async ({ tempUpload, originalname }, userId) => {
+  const updatedAvatar = await usersRepository.updateAvatar({ tempUpload, originalname }, userId);
+  return updatedAvatar;
+}
+
 module.exports = {
-  register, login,
-  findById,
-  updateSubscription
+  register, login, logout, getCurrentUserByToken,
+  findUserForStrategy,
+  updateSubscription, updateAvatar
 }
