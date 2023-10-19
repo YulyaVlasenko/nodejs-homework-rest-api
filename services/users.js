@@ -40,8 +40,12 @@ const verifyEmail = async (verificationToken) => {
   await usersRepository.verifyEmail(verificationToken);
 };
 
+const verifyResend = async (email) => {
+   await usersRepository.verifyResend(email);
+}
+
 module.exports = {
   register, login, logout, getCurrentUserByToken,
-  findUserForStrategy,
-  updateSubscription, updateAvatar, verifyEmail
+  findUserForStrategy, updateSubscription, updateAvatar,
+  verifyEmail, verifyResend
 };

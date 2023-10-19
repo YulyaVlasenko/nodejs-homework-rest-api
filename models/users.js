@@ -46,6 +46,50 @@ const create = async ({email, password}) => {
 };
 
 
+const verifyEmail = async (verificationToken) => {
+  const verifiedUser = await UserModel.findOne({ verificationToken });
+  console.log('verifiedUser :>> ', verifiedUser);
+  if (!verifiedUser) {
+    const error = createError(ERROR_TYPES.NOT_FOUND, {
+      message: 'Not Found'
+    })
+    throw error
+  }
+  await UserModel.findByIdAndUpdate(verifiedUser._id, { verify: true, verificationToken: null })
+};
+
+
+const verifyResend = async (email) => {
+  if (!email) {
+    const error = createError(ERROR_TYPES.BAD_REQUEST, {
+      message: "Missing required field email"
+    })
+    throw error
+  }
+  const user = await UserModel.findOne({ email })
+  if (!user) {
+    const error = createError(ERROR_TYPES.NOT_FOUND, {
+      message: 'Not Found'
+    })
+    throw error
+  }
+        
+  if (user.verify) {
+    const error = createError(ERROR_TYPES.BAD_REQUEST, {
+      message: "Verification has already been passed"
+    })
+    throw error
+  }
+  const { verificationToken } = user
+  const mail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">Follow link for verify email<a>`,
+  };
+  await sendEmail(mail);
+};
+
+
 const login = async ({ email, password }) => {
     const [user] = await UserModel.find({email});
     if (!user) {
@@ -91,28 +135,28 @@ const login = async ({ email, password }) => {
 
 
 const logout = async (userId) => {
-   const user = await UserModel.findByIdAndUpdate(userId, { $set: { token: null } });
+  const user = await UserModel.findByIdAndUpdate(userId, { $set: { token: null } });
     
-    if (!user) {
-      const error = createError(ERROR_TYPES.UNAUTHORIZED, {
-        message: 'Not authorized'
-      });
-      throw(error); 
-    }
-}
+  if (!user) {
+    const error = createError(ERROR_TYPES.UNAUTHORIZED, {
+      message: 'Not authorized'
+    });
+    throw (error);
+  }
+};
 
 const getCurrentUserByToken = async (userId) => {
   const user = await UserModel.findById(userId, { password: 0, avatarURL: 0 });
 
-     if (!user) {
-      const error = createError(ERROR_TYPES.UNAUTHORIZED, {
-        message: 'User not found'
-      });
-      throw(error); 
+  if (!user) {
+    const error = createError(ERROR_TYPES.UNAUTHORIZED, {
+      message: 'User not found'
+    });
+    throw (error);
   }
   
   return user
-}
+};
 
 const findUserForStrategy = async (id) => {
   const user = await UserModel.findById(id, { password: 0 })
@@ -142,16 +186,14 @@ const updateStatusSubscription = async (userId, body) => {
 };
 
 
-
-
 const updateAvatar = async ({ tempUpload, originalname }, userId) => {
   const filename = `${userId}_${originalname}`;
   await resizeAvatar(tempUpload);
   const resultUpload = path.join(avatarsDir, filename);
   await fs.rename(tempUpload, resultUpload);
   const avatarURL = path.join('avatars', filename);
-  const updatedAvatar = await UserModel.findByIdAndUpdate(userId, { avatarURL }, {new: true});
-   if (!updatedAvatar) {
+  const updatedAvatar = await UserModel.findByIdAndUpdate(userId, { avatarURL }, { new: true });
+  if (!updatedAvatar) {
     const error = createError(ERROR_TYPES.NOT_FOUND, {
       message: "Not found",
     });
@@ -159,22 +201,10 @@ const updateAvatar = async ({ tempUpload, originalname }, userId) => {
   };
 
   return updatedAvatar
-}
+};
 
-const verifyEmail = async(verificationToken)=>{
-  const verifiedUser = await UserModel.findOne({ verificationToken });
-  console.log('verifiedUser :>> ', verifiedUser);
-    if (!verifiedUser) {
-        const error = createError(ERROR_TYPES.NOT_FOUND,{
-            message:'Not Found'
-        })
-        throw error
-    }
-  await UserModel.findByIdAndUpdate(verifiedUser._id, { verify: true, verificationToken: null })
-  
-}
 
 module.exports = {
   create, login, logout, getCurrentUserByToken, findUserForStrategy,
-  updateStatusSubscription, updateAvatar, verifyEmail
+  updateStatusSubscription, updateAvatar, verifyEmail, verifyResend
 }
