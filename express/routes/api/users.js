@@ -8,6 +8,7 @@ const auth = require('../../middlewares/auth');
 const authMiddleware = require('../../middlewares/authToken');
 const updateFieldSubscription = require('../../../schemas/users/updateFieldSubscription');
 const upload = require('../../middlewares/multer');
+const emaiResendSchema = require('../../../schemas/common/emailResend');
 
 
 
@@ -110,7 +111,7 @@ router.get("/verify/:verificationToken", async (req, res, next) => {
 });
 
 
-router.post("/verify", async (req, res, next) => {
+router.post("/verify", validateBody(emaiResendSchema), async (req, res, next) => {
   try {
     const { email } = req.body
     await usersService.verifyResend(email )
