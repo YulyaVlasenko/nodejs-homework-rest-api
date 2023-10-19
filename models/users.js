@@ -48,7 +48,6 @@ const create = async ({email, password}) => {
 
 const verifyEmail = async (verificationToken) => {
   const verifiedUser = await UserModel.findOne({ verificationToken });
-  console.log('verifiedUser :>> ', verifiedUser);
   if (!verifiedUser) {
     const error = createError(ERROR_TYPES.NOT_FOUND, {
       message: 'Not Found'
