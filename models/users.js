@@ -8,6 +8,8 @@ const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 const gravatar = require('gravatar');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { nanoid } = require('nanoid');
+const sendEmail = require('../services/nodemailer');
 const { JWT_SECRET } = process.env;
 
 const create = async ({email, password}) => {
@@ -21,13 +23,24 @@ const create = async ({email, password}) => {
   
   const passwordHash = await bcrypt.hash(password, 10);
   const avatarURL = gravatar.url({ email })
+
+  const verificationToken = nanoid();
+
     
   const user = new UserModel({
     email,
     password: passwordHash,
     avatarURL,
+    verificationToken,
   });
   await user.save();
+
+  const mail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="http://localhost:3000/api/auth/verify/${verificationToken}">Follow link for verify email<a>`,
+  };
+  await sendEmail(mail);
   return user;
 };
 
